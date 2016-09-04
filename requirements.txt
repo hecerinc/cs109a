@@ -1,0 +1,6 @@
+numpy
+matplotlib
+random
+mpl_toolkits.mplot3d
+bs4
+urllib
