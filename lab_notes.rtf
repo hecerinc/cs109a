@@ -1,0 +1,113 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf460
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 def fill_knn(missing_df,full_df,no_y_ind,with_y_ind,k);\
+	x_train = missing_df.loc[with_y_ind,'x'].values.reshape((len(with_y_ind,1))\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	y_train = missing_df.loc[with_y_ind,'y'].values\
+	x_test = missing_df.loc[no_y_ind,'x'].values.reshape((len(no_y_ind,1))\
+	y_test= full_df.loc[no_y_ind,'y'].values\
+\
+	neighbours = KNN(n_neighbors=k)\
+	neighbours.fit(x_train,y_train)\
+	predicted_y=neighbours.predict(x_test)\
+	\
+	r= neighbours.score(x_test, y_test)\
+\
+	predicted_df = missing_df.copy()\
+	predicted_df.loc[no_y_ind,'y'] = pd.Series(predicted_y, index=no_y_ind)\
+\
+	return predicted_df, r\
+\
+def fill_linreg(missing_df,full_df,no_y_ind,with_y_ind):\
+	x_train = missing_df.loc[with_y_ind,'x'].values.reshape((len(with_y_ind,1))\
+	y_train = missing_df.loc[with_y_ind,'y'].values\
+	x_test = missing_df.loc[no_y_ind,'x'].values.reshape((len(no_y_ind,1))\
+	y_test= full_df.loc[no_y_ind,'y'].values\
+\
+	regression = Lin_Reg()\
+	regression(x_train,y_train)\
+	predicted_y= regression.predict(x_test)\
+	\
+	r= regression.score(x_test, y_test)\
+\
+	predicted_df = missing_df.copy()\
+	predicted_df.loc[no_y_ind,'y'] = pd.Series(predicted_y, index=no_y_ind)\
+\
+	return predicted_df, r\
+\
+#read dataset 1\
+missing_df = pd.read_csv('dataset/dataset_1_missing.txt')\
+full_df = pd.read_csv('dataset/dataset_1_full.txt')\
+\
+no_y_ind = missing_df[missing_df['y'].isnull()].index\
+with_y_ind = missing_df[missing_df['y'].notnull()].index\
+\
+predicted_knn,r_knn = fill_knn(missing_df,full_df,no_y_ind,with_y_ind,k)\
+predicted_linreg,r_linreg = fill_linreg(missing_df,full_df,no_y_ind,with_y_ind)\
+\
+**** \
+Do scatter plots of \
+higher r^2 values suggest a better fit\
+KNN does better with data if you can see it's not linear and has no preconception that data is linear\
+LinReg does better with data that has trends which are linear\
+\
+\
+*****\
+\
+def plot_scatter(data, plot_title, x_lable, y_lable, groups, axes):\
+    #set up color map (one color per group number)\
+    \
+    #split [0, 1] in to as many parts as there are groups\
+    group_numbers = np.linspace(0, 1, groups) \
+    #get a color map\
+    c_map = plt.get_cmap('rainbow') \
+    #get a range of colors from color map\
+    c_norm  = colors.Normalize(vmin=0, vmax=group_numbers[-1])\
+    #get a map that maps a group number to a color\
+    number_map = cmx.ScalarMappable(norm=c_norm, cmap=c_map)\
+    \
+    #plot points colored by their group number\
+    for group in xrange(groups):\
+        #convert a group number into a color using our map\
+        color = number_map.to_rgba(group_numbers[group])\
+        #make a scatter plot of a specific group colored by its group number color\
+        axes.scatter(data[data['subtype'] == group]['marker_1'], \
+                     data[data['subtype'] == group]['marker_2'], \
+                     c=color, \
+                     alpha = 0.5)\
+\
+    axes.set_title(plot_title) \
+    axes.set_xlabel(x_lable)\
+    axes.set_ylabel(y_lable)\
+    \
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 10))\
+\
+plot_scatter(df, 'scatter plot of entire dataset', 'marker 1', 'marker 2', 4, ax1)  \
+plot_scatter(children_data, \
+             'scatter plot of children', \
+             'marker 1', 'marker 2', \
+             4,\
+             ax2)  \
+plot_scatter(adult_women_data, \
+             'scatter plot of adult female', \
+             'marker 1', \
+             'marker 2', \
+             4, \
+             ax3)  \
+plot_scatter(adult_male_data, \
+             'scatter plot of adult male', \
+             'marker 1', \
+             'marker 2', \
+             4, \
+             ax4) \
+\
+plt.tight_layout()\
+plt.show()\
+ \
+\
+\
+}
